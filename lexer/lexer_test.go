@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/monban/lispian/token"
@@ -52,7 +53,7 @@ func TestLexerTokens(t *testing.T) {
 
 			actual := l.Tokens()
 			expected := tst.output
-			if token.CompareSlice(actual, expected) == true {
+			if slices.EqualFunc(actual, expected, token.Compare) {
 				t.Logf("%s == %s", actual, expected)
 			} else {
 				t.Errorf("%s != %s", actual, expected)

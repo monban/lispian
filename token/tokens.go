@@ -46,18 +46,6 @@ func Compare(a, b Token) bool {
 	return a.Type == b.Type && a.Text == b.Text
 }
 
-func CompareSlice(a, b []Token) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if Compare(a[i], b[i]) == false {
-			return false
-		}
-	}
-	return true
-}
-
 func Start() Token {
 	return Token{LIST_START, "("}
 }
