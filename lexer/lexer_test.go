@@ -1,43 +1,35 @@
 package lexer
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/monban/lispian/token"
 )
 
-var lexerTests = [...]lexerTest{
+var lexerTests = []struct {
+	input  string
+	output []token.Token
+}{
 	{
-		text:       "()",
-		tokenCount: 2,
-		tokens:     []token.Token{token.Start(), token.End()},
+		input:  "()",
+		output: []token.Token{token.Start(), token.End()},
 	},
 	{
-		text:       "(\"Hello, world\")",
-		tokenCount: 3,
-		tokens:     []token.Token{token.Start(), token.String("Hello, world"), token.End()},
+		input:  "(\"Hello, world\")",
+		output: []token.Token{token.Start(), token.String("Hello, world"), token.End()},
 	},
 }
 
-func TestLexerCount(t *testing.T) {
-	for _, tst := range lexerTests {
-		t.Run("", func(t *testing.T) {
-			l := Lexer{}
-			l.Write([]byte(tst.text))
-			expectEqual(t, tst.tokenCount, len(l.tokens))
-		})
-	}
-}
 func TestLexerTokens(t *testing.T) {
 	for _, tst := range lexerTests {
 		t.Run("", func(t *testing.T) {
 			l := Lexer{}
-			l.Write([]byte(tst.text))
-			if token.CompareSlice(tst.tokens, l.tokens) == true {
-				t.Logf("%s == %s", tst.tokens, l.tokens)
+			l.Write([]byte(tst.input))
+			expectEqual(t, len(l.tokens), len(tst.output))
+			if token.CompareSlice(l.tokens, tst.output) == true {
+				t.Logf("%s == %s", tst.input, l.tokens)
 			} else {
-				t.Errorf("%s != %s", tst.tokens, l.tokens)
+				t.Errorf("%s != %s", tst.input, l.tokens)
 			}
 		})
 	}
@@ -69,14 +61,4 @@ func expectEqual[S comparable](t *testing.T, a S, b S) {
 	} else {
 		t.Errorf("%#v != %#v\n", a, b)
 	}
-}
-
-type lexerTest struct {
-	text       string
-	tokenCount int
-	tokens     []token.Token
-}
-
-func (lt lexerTest) String() string {
-	return fmt.Sprintf("%s %d", lt.text, lt.tokenCount)
 }
