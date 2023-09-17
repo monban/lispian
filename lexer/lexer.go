@@ -19,6 +19,13 @@ type Lexer struct {
 	partial strings.Builder
 }
 
+func (l *Lexer) WriteString(s string) error {
+	for _, r := range s {
+		l.WriteRune(r)
+	}
+	return nil
+}
+
 func (l *Lexer) Write(bytes []byte) (int, error) {
 	var readBytes int
 	str := string(bytes)

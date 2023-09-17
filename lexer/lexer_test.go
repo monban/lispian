@@ -24,7 +24,7 @@ func TestLexerTokens(t *testing.T) {
 	for _, tst := range lexerTests {
 		t.Run("", func(t *testing.T) {
 			l := Lexer{}
-			l.Write([]byte(tst.input))
+			l.WriteString(tst.input)
 			expectEqual(t, len(l.tokens), len(tst.output))
 			if token.CompareSlice(l.tokens, tst.output) == true {
 				t.Logf("%s == %s", tst.input, l.tokens)
@@ -37,12 +37,12 @@ func TestLexerTokens(t *testing.T) {
 
 func TestStringParsing(t *testing.T) {
 	l := Lexer{}
-	l.Write([]byte("\""))
+	l.WriteRune('"')
 	expectEqual(t, l.state, READSTRING)
-	l.Write([]byte("foo"))
+	l.WriteString("foo")
 	expectEqual(t, l.state, READSTRING)
 	expectEqual(t, l.partial.String(), "foo")
-	l.Write([]byte("\""))
+	l.WriteRune('"')
 	expectEqual(t, l.state, ROOT)
 
 	expected := token.String("foo")
