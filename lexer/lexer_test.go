@@ -11,12 +11,19 @@ var lexerTests = []struct {
 	output []token.Token
 }{
 	{
-		input:  "()",
-		output: []token.Token{token.Start(), token.End()},
+		input: "()",
+		output: []token.Token{
+			token.Start(),
+			token.End(),
+		},
 	},
 	{
-		input:  "(\"Hello, world\")",
-		output: []token.Token{token.Start(), token.String("Hello, world"), token.End()},
+		input: "(\"Hello, world\")",
+		output: []token.Token{
+			token.Start(),
+			token.String("Hello, world"),
+			token.End(),
+		},
 	},
 }
 
@@ -27,9 +34,9 @@ func TestLexerTokens(t *testing.T) {
 			l.WriteString(tst.input)
 			expectEqual(t, len(l.Tokens()), len(tst.output))
 			if token.CompareSlice(l.Tokens(), tst.output) == true {
-				t.Logf("%s == %s", tst.input, l.Tokens())
+				t.Logf("%s == %s", tst.output, l.Tokens())
 			} else {
-				t.Errorf("%s != %s", tst.input, l.Tokens())
+				t.Errorf("%s != %s", tst.output, l.Tokens())
 			}
 		})
 	}
