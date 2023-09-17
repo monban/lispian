@@ -33,6 +33,14 @@ var lexerTests = []struct {
 			token.End(),
 		},
 	},
+	{
+		input: "(5)",
+		output: []token.Token{
+			token.Start(),
+			token.Int("5"),
+			token.End(),
+		},
+	},
 }
 
 func TestLexerTokens(t *testing.T) {
@@ -41,10 +49,13 @@ func TestLexerTokens(t *testing.T) {
 			l := Lexer{}
 			l.WriteString(tst.input)
 			expectEqual(t, len(l.Tokens()), len(tst.output))
-			if token.CompareSlice(l.Tokens(), tst.output) == true {
-				t.Logf("%s == %s", tst.output, l.Tokens())
+
+			actual := l.Tokens()
+			expected := tst.output
+			if token.CompareSlice(actual, expected) == true {
+				t.Logf("%s == %s", actual, expected)
 			} else {
-				t.Errorf("%s != %s", tst.output, l.Tokens())
+				t.Errorf("%s != %s", actual, expected)
 			}
 		})
 	}

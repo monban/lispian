@@ -6,6 +6,7 @@ const (
 	LIST_START = iota
 	LIST_END   = iota
 	STRING     = iota
+	INT        = iota
 )
 
 type TokenType int
@@ -23,6 +24,8 @@ func (tt TokenType) String() string {
 		return "LIST_END"
 	case STRING:
 		return "STRING"
+	case INT:
+		return "INT"
 	default:
 		return "INVALID"
 	}
@@ -63,4 +66,8 @@ func End() Token {
 }
 func String(s string) Token {
 	return Token{STRING, s}
+}
+
+func Int(s string) Token {
+	return Token{INT, s}
 }
