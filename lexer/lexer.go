@@ -11,7 +11,10 @@ const (
 	ROOT       = iota
 	READSTRING = iota
 	READNUMBER = iota
+	READSTMT   = iota
 )
+
+const STMT_CHARS = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+-_/?`
 
 type State int
 
@@ -23,6 +26,8 @@ func (s State) String() string {
 		return "READSTRING"
 	case READNUMBER:
 		return "READNUMBER"
+	case READSTMT:
+		return "READSTMT"
 	default:
 		return "INVALID_STATE"
 	}
@@ -57,6 +62,8 @@ func (l *Lexer) WriteRune(r rune) {
 		l.readstring(r)
 	case READNUMBER:
 		l.readnumber(r)
+	case READSTMT:
+		l.readstmt(r)
 	default:
 		l.readroot(r)
 	}
@@ -97,6 +104,20 @@ func (l *Lexer) readnumber(r rune) {
 	}
 }
 
+func (l *Lexer) readstmt(r rune) {
+	if strings.ContainsRune(STMT_CHARS, r) {
+		l.partial.WriteRune(r)
+	} else {
+		l.tokens = append(
+			l.tokens,
+			token.Statement(l.partial.String()),
+		)
+		l.state = ROOT
+		l.partial.Reset()
+	}
+
+}
+
 func (l *Lexer) readroot(r rune) {
 	switch r {
 	case '"':
@@ -108,5 +129,9 @@ func (l *Lexer) readroot(r rune) {
 	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 		l.state = READNUMBER
 		l.readnumber(r)
+	}
+	if strings.ContainsRune(STMT_CHARS, r) {
+		l.state = READSTMT
+		l.readstmt(r)
 	}
 }

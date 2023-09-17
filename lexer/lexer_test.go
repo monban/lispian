@@ -42,6 +42,16 @@ var lexerTests = []struct {
 			token.End(),
 		},
 	},
+	{
+		input: "(add 1 2)",
+		output: []token.Token{
+			token.Start(),
+			token.Statement("add"),
+			token.Int("1"),
+			token.Int("2"),
+			token.End(),
+		},
+	},
 }
 
 func TestLexerTokens(t *testing.T) {
