@@ -16,18 +16,16 @@ type Token struct {
 }
 
 func (tt TokenType) String() string {
-	var str string
 	switch tt {
 	case LIST_START:
-		str = "LIST_START"
+		return "LIST_START"
 	case LIST_END:
-		str = "LIST_END"
+		return "LIST_END"
 	case STRING:
-		str = "STRING"
+		return "STRING"
 	default:
-		str = "INVALID"
+		return "INVALID"
 	}
-	return str
 }
 
 func (t Token) String() string {
