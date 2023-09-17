@@ -13,6 +13,17 @@ const (
 
 type State int
 
+func (s State) String() string {
+	switch s {
+	case ROOT:
+		return "ROOT"
+	case READSTRING:
+		return "READSTRING"
+	default:
+		return "INVALID_STATE"
+	}
+}
+
 type Lexer struct {
 	tokens  []token.Token
 	state   State

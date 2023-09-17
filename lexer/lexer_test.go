@@ -57,7 +57,7 @@ func TestStringParsing(t *testing.T) {
 func expectEqual[S comparable](t *testing.T, a S, b S) {
 	t.Helper()
 	if a == b {
-		t.Logf("%#v == %#v\n", a, b)
+		t.Logf("%v == %v\n", a, b)
 	} else {
 		t.Errorf("%#v != %#v\n", a, b)
 	}
