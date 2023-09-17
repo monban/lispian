@@ -24,22 +24,26 @@ func (l *Lexer) Write(bytes []byte) (int, error) {
 	str := string(bytes)
 	for _, r := range str {
 		readBytes++
-		switch l.state {
-		case READSTRING:
-			l.readstring(r)
-		default:
-			switch r {
-			case '"':
-				l.state = READSTRING
-			case '(':
-				l.tokens = append(l.tokens, token.Start())
-			case ')':
-				l.tokens = append(l.tokens, token.End())
-			}
-
-		}
+		l.WriteRune(r)
 	}
 	return readBytes, nil
+}
+
+func (l *Lexer) WriteRune(r rune) {
+	switch l.state {
+	case READSTRING:
+		l.readstring(r)
+	default:
+		switch r {
+		case '"':
+			l.state = READSTRING
+		case '(':
+			l.tokens = append(l.tokens, token.Start())
+		case ')':
+			l.tokens = append(l.tokens, token.End())
+		}
+
+	}
 }
 
 func (l *Lexer) readstring(r rune) {
@@ -50,4 +54,8 @@ func (l *Lexer) readstring(r rune) {
 	} else {
 		l.partial.WriteRune(r)
 	}
+}
+
+func (l *Lexer) Tokens() []token.Token {
+	return l.tokens
 }
