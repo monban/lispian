@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"strings"
+	"unicode/utf8"
 
 	"github.com/monban/lispian/token"
 )
@@ -25,9 +26,10 @@ func (s State) String() string {
 }
 
 type Lexer struct {
-	tokens  []token.Token
-	state   State
-	partial strings.Builder
+	tokens      []token.Token
+	state       State
+	partial     strings.Builder
+	partialRune []byte
 }
 
 func (l *Lexer) WriteString(s string) error {
@@ -39,10 +41,9 @@ func (l *Lexer) WriteString(s string) error {
 
 func (l *Lexer) Write(bytes []byte) (int, error) {
 	var readBytes int
-	str := string(bytes)
-	for _, r := range str {
+	for _, b := range bytes {
 		readBytes++
-		l.WriteRune(r)
+		l.WriteByte(b)
 	}
 	return readBytes, nil
 }
@@ -62,6 +63,16 @@ func (l *Lexer) WriteRune(r rune) {
 		}
 
 	}
+}
+
+func (l *Lexer) WriteByte(b byte) error {
+	l.partialRune = append(l.partialRune, b)
+	if utf8.FullRune(l.partialRune) {
+		r, _ := utf8.DecodeRune(l.partialRune)
+		l.partialRune = nil
+		l.WriteRune(r)
+	}
+	return nil
 }
 
 func (l *Lexer) readstring(r rune) {

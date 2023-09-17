@@ -25,6 +25,14 @@ var lexerTests = []struct {
 			token.End(),
 		},
 	},
+	{
+		input: "(\"秘密\")",
+		output: []token.Token{
+			token.Start(),
+			token.String("秘密"),
+			token.End(),
+		},
+	},
 }
 
 func TestLexerTokens(t *testing.T) {
@@ -61,11 +69,36 @@ func TestStringParsing(t *testing.T) {
 	}
 }
 
+func TestUnicodeWriting(t *testing.T) {
+	l := Lexer{}
+	input := []byte("\"秘密\"")
+	expected := token.String("秘密")
+	for _, b := range input {
+		l.WriteByte(b)
+	}
+	requireEqual(t, len(l.Tokens()), 1)
+	actual := l.Tokens()[0]
+	if token.Compare(actual, expected) {
+		t.Logf("%s == %s", actual, expected)
+	} else {
+		t.Errorf("%s != %s", actual, expected)
+	}
+}
+
 func expectEqual[S comparable](t *testing.T, a S, b S) {
 	t.Helper()
 	if a == b {
 		t.Logf("%v == %v\n", a, b)
 	} else {
 		t.Errorf("%#v != %#v\n", a, b)
+	}
+}
+
+func requireEqual[S comparable](t *testing.T, a S, b S) {
+	t.Helper()
+	if a == b {
+		t.Logf("%v == %v\n", a, b)
+	} else {
+		t.Fatalf("%#v != %#v\n", a, b)
 	}
 }
