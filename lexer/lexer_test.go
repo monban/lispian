@@ -52,10 +52,13 @@ func TestStringParsing(t *testing.T) {
 	expectEqual(t, l.partial.String(), "foo")
 	l.Write([]byte("\""))
 	expectEqual(t, l.state, ROOT)
-	if token.Compare(token.String("foo"), l.tokens[0]) {
-		t.Logf("%s == %s", token.String("foo"), l.tokens[0])
+
+	expected := token.String("foo")
+	actual := l.tokens[0]
+	if token.Compare(actual, expected) {
+		t.Logf("%s == %s", actual, expected)
 	} else {
-		t.Logf("%s == %s", token.String("foo"), l.tokens[0])
+		t.Errorf("%s != %s", actual, expected)
 	}
 }
 
