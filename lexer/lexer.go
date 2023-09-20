@@ -40,6 +40,11 @@ type Lexer struct {
 	partialRune []byte
 }
 
+func (l *Lexer) Reset() {
+	l.tokens = l.tokens[:0]
+	l.partial.Reset()
+}
+
 func (l *Lexer) WriteString(s string) error {
 	for _, r := range s {
 		l.WriteRune(r)
