@@ -19,17 +19,20 @@ func Eval(l parser.List) any {
 	return parser.Null{}
 }
 
-func evalStatement(s parser.List) any {
-	if s.Items[0] == parser.Statement("add") {
-		return evalAdd(s)
+func evalStatement(l parser.List) any {
+	switch l.Items[0] {
+	case parser.Statement("add"):
+		return evalAdd(l)
+	default:
+		panic("unknown statement")
 	}
-	return nil
 }
 
-func evalAdd(s parser.List) int {
+func evalAdd(l parser.List) int {
 	var sum int
-	for i := 1; i < len(s.Items); i++ {
-		e, ok := s.Items[i].(parser.Int)
+	for i := 1; i < len(l.Items); i++ {
+		// TODO: if this is a list, we should check if it evaluates to an Int
+		e, ok := l.Items[i].(parser.Int)
 		if !ok {
 			panic("unable to parse int")
 		}
