@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"slices"
+	"strconv"
 
 	"github.com/monban/lispian/token"
 )
@@ -12,6 +13,8 @@ const (
 	LITERAL   = iota
 	STRING    = iota
 	STATEMENT = iota
+	INT       = iota
+	NULL      = iota
 )
 
 type ListType int
@@ -26,6 +29,10 @@ func (lt ListType) String() string {
 		return "STRING"
 	case STATEMENT:
 		return "STATEMENT"
+	case INT:
+		return "INT"
+	case NULL:
+		return "NULL"
 	default:
 		return "INVALID"
 	}
@@ -60,6 +67,18 @@ func (l List) Type() ListType {
 	return l.T
 }
 
+type Int int
+
+func (i Int) Type() ListType {
+	return INT
+}
+
+type Null struct{}
+
+func (Null) Type() ListType {
+	return NULL
+}
+
 func Parse(ts []token.Token) (List, error) {
 	if len(ts) < 3 {
 		return List{T: EMPTY}, nil
@@ -77,6 +96,9 @@ func Parse(ts []token.Token) (List, error) {
 			l.Items = append(l.Items, Statement(ts[i].Text))
 		case token.STRING:
 			l.Items = append(l.Items, String(ts[i].Text))
+		case token.INT:
+			integer, _ := strconv.ParseInt(ts[i].Text, 10, 32)
+			l.Items = append(l.Items, Int(integer))
 		}
 	}
 	return l, nil

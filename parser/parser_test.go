@@ -50,6 +50,24 @@ var parserTests = []struct {
 		},
 		err: nil,
 	},
+	{
+		input: []token.Token{
+			token.Start(),
+			token.Statement("add"),
+			token.Int("1"),
+			token.Int("1"),
+			token.End(),
+		},
+		output: List{
+			T: STATEMENT,
+			Items: []Item{
+				Statement("add"),
+				Int(1),
+				Int(1),
+			},
+		},
+		err: nil,
+	},
 }
 
 func TestParse(t *testing.T) {
