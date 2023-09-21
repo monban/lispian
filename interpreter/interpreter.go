@@ -1,6 +1,8 @@
 package interpreter
 
 import (
+	"fmt"
+
 	"github.com/monban/lispian/parser"
 )
 
@@ -9,7 +11,14 @@ type ReturnType interface {
 }
 
 // Evaluate a List and return the result Item
-func Eval(l parser.List) any {
+func Eval(l parser.List) parser.Item {
+	// Walk the list and evaluate any sub-lists
+	for i, item := range l.Items {
+		if item, ok := item.(parser.List); ok {
+			l.Items[i] = Eval(item)
+		}
+
+	}
 	if l.T == parser.LITERAL {
 		return l
 	}
@@ -19,16 +28,17 @@ func Eval(l parser.List) any {
 	return parser.Null{}
 }
 
-func evalStatement(l parser.List) any {
+func evalStatement(l parser.List) parser.Item {
 	switch l.Items[0] {
 	case parser.Statement("add"):
 		return evalAdd(l)
 	default:
-		panic("unknown statement")
+		err := fmt.Sprintf("unknown statement: '%#v'", l.Items[0])
+		panic(err)
 	}
 }
 
-func evalAdd(l parser.List) int {
+func evalAdd(l parser.List) parser.Int {
 	var sum int
 	for i := 1; i < len(l.Items); i++ {
 		// TODO: if this is a list, we should check if it evaluates to an Int
@@ -38,5 +48,5 @@ func evalAdd(l parser.List) int {
 		}
 		sum += int(e)
 	}
-	return sum
+	return parser.Int(sum)
 }

@@ -37,7 +37,26 @@ var parserTests = []struct {
 				parser.Int(2),
 			},
 		},
-		output: 3,
+		output: parser.Int(3),
+		err:    nil,
+	},
+	{
+		input: parser.List{
+			T: parser.STATEMENT,
+			Items: []parser.Item{
+				parser.Statement("add"),
+				parser.List{
+					T: parser.STATEMENT,
+					Items: []parser.Item{
+						parser.Statement("add"),
+						parser.Int(1),
+						parser.Int(1),
+					},
+				},
+				parser.Int(1),
+			},
+		},
+		output: parser.Int(3),
 		err:    nil,
 	},
 }
@@ -58,7 +77,7 @@ func TestEval(t *testing.T) {
 			switch output := output.(type) {
 			case parser.List:
 				success = output.Equals(tst.input)
-			case int:
+			case parser.Item:
 				success = output == expected
 			default:
 				t.Fatalf("case not handled")

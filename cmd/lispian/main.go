@@ -27,7 +27,7 @@ func main() {
 		}
 		// fmt.Printf("DEBUG: tokens: %#v\n", l.Tokens())
 
-		program, err := parser.Parse(l.Tokens())
+		program, _, err := parser.Parse(l.Tokens())
 		if err != nil {
 			panic(err)
 		}
