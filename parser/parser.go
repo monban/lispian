@@ -79,7 +79,6 @@ func (Null) Type() ListType {
 }
 
 func Parse(ts []token.Token) (List, int, error) {
-	fmt.Println("parsing tokens: ", ts)
 	if len(ts) < 3 {
 		return List{T: EMPTY}, len(ts), nil
 	}
@@ -101,7 +100,6 @@ func Parse(ts []token.Token) (List, int, error) {
 			integer, _ := strconv.ParseInt(ts[i].Text, 10, 32)
 			l.Items = append(l.Items, Int(integer))
 		case token.LIST_START:
-			fmt.Println("Calling subparser...")
 			sublist, j, _ := Parse(ts[i:])
 			l.Items = append(l.Items, sublist)
 			i += j
