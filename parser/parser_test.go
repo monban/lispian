@@ -11,6 +11,8 @@ var parserTests = []struct {
 	output List
 	err    error
 }{
+	// An empty list
+	// ()
 	{
 		input: []token.Token{
 			token.Start(),
@@ -22,6 +24,9 @@ var parserTests = []struct {
 		},
 		err: nil,
 	},
+
+	// A literal list containing a single string
+	// ("Hello, world")
 	{
 		input: []token.Token{
 			token.Start(),
@@ -34,6 +39,9 @@ var parserTests = []struct {
 		},
 		err: nil,
 	},
+
+	// A statement list with a string parameter
+	// (print "Hello, world")
 	{
 		input: []token.Token{
 			token.Start(),
@@ -50,6 +58,9 @@ var parserTests = []struct {
 		},
 		err: nil,
 	},
+
+	// A statement list with two integer parameters
+	// (add 1 1)
 	{
 		input: []token.Token{
 			token.Start(),
@@ -68,13 +79,45 @@ var parserTests = []struct {
 		},
 		err: nil,
 	},
+
+	// A list with a sublist
+	// (add (add 1 1) 1)
+	{
+		input: []token.Token{
+			token.Start(),
+			token.Statement("add"),
+			token.Start(),
+			token.Statement("add"),
+			token.Int("1"),
+			token.Int("1"),
+			token.End(),
+			token.Int("1"),
+			token.End(),
+		},
+		output: List{
+			T: STATEMENT,
+			Items: []Item{
+				Statement("add"),
+				List{
+					T: STATEMENT,
+					Items: []Item{
+						Statement("add"),
+						Int(1),
+						Int(1),
+					},
+				},
+				Int(1),
+			},
+		},
+		err: nil,
+	},
 }
 
 func TestParse(t *testing.T) {
 	for _, tst := range parserTests {
 		t.Run("", func(t *testing.T) {
 			expected := tst.output
-			output, err := Parse(tst.input)
+			output, _, err := Parse(tst.input)
 			if err != tst.err {
 				t.Error(err)
 			}

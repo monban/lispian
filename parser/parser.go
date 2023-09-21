@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"slices"
 	"strconv"
 
 	"github.com/monban/lispian/token"
@@ -79,9 +78,10 @@ func (Null) Type() ListType {
 	return NULL
 }
 
-func Parse(ts []token.Token) (List, error) {
+func Parse(ts []token.Token) (List, int, error) {
+	fmt.Println("parsing tokens: ", ts)
 	if len(ts) < 3 {
-		return List{T: EMPTY}, nil
+		return List{T: EMPTY}, len(ts), nil
 	}
 
 	var l List
@@ -90,7 +90,8 @@ func Parse(ts []token.Token) (List, error) {
 	} else {
 		l.T = LITERAL
 	}
-	for i := 1; i < len(ts); i++ {
+	i := 1
+	for ; i < len(ts); i++ {
 		switch ts[i].Type {
 		case token.STATEMENT:
 			l.Items = append(l.Items, Statement(ts[i].Text))
@@ -99,14 +100,35 @@ func Parse(ts []token.Token) (List, error) {
 		case token.INT:
 			integer, _ := strconv.ParseInt(ts[i].Text, 10, 32)
 			l.Items = append(l.Items, Int(integer))
+		case token.LIST_START:
+			fmt.Println("Calling subparser...")
+			sublist, j, _ := Parse(ts[i:])
+			l.Items = append(l.Items, sublist)
+			i += j
+		case token.LIST_END:
+			return l, i, nil
+		default:
+			return List{}, i, fmt.Errorf("parser error")
 		}
 	}
-	return l, nil
+	return l, i, nil
 }
 
 func (a List) Equals(b List) bool {
 	if a.T != b.T {
 		return false
 	}
-	return slices.Equal(a.Items, b.Items)
+	for i, _ := range a.Items {
+		if a.Items[i].Type() != b.Items[i].Type() {
+			return false
+		}
+		listItemA, ok := a.Items[i].(List)
+		if ok {
+			listItemB, _ := b.Items[i].(List)
+			if !listItemA.Equals(listItemB) {
+				return false
+			}
+		}
+	}
+	return true
 }
