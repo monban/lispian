@@ -112,18 +112,20 @@ func (l *Lexer) readnumber(r rune) {
 func (l *Lexer) readstmt(r rune) {
 	if strings.ContainsRune(STMT_CHARS, r) {
 		l.partial.WriteRune(r)
-	} else {
-		str := l.partial.String()
-		if str == "true" {
-			l.tokens = append(l.tokens, token.True())
-		} else if str == "false" {
-			l.tokens = append(l.tokens, token.False())
-		} else {
-			l.tokens = append(l.tokens, token.Statement(str))
-		}
-		l.state = ROOT
-		l.partial.Reset()
+		return
 	}
+
+	// The previous statement is complete
+	str := l.partial.String()
+	if str == "true" {
+		l.tokens = append(l.tokens, token.True())
+	} else if str == "false" {
+		l.tokens = append(l.tokens, token.False())
+	} else {
+		l.tokens = append(l.tokens, token.Statement(str))
+	}
+	l.state = ROOT
+	l.partial.Reset()
 
 }
 
