@@ -111,6 +111,29 @@ var parserTests = []struct {
 		},
 		err: nil,
 	},
+
+	// An if statement
+	// (if true "foo" "bar")
+	{
+		input: []token.Token{
+			token.Start(),
+			token.Statement("if"),
+			token.True(),
+			token.String("foo"),
+			token.String("bar"),
+			token.End(),
+		},
+		output: List{
+			T: STATEMENT,
+			Items: []Item{
+				Statement("if"),
+				True(),
+				String("foo"),
+				String("bar"),
+			},
+		},
+		err: nil,
+	},
 }
 
 func TestParse(t *testing.T) {
