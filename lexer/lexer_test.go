@@ -52,6 +52,16 @@ var lexerTests = []struct {
 			token.End(),
 		},
 	},
+	{
+		input: "(if true false )", // TODO: why is this space needed?
+		output: []token.Token{
+			token.Start(),
+			token.Statement("if"),
+			token.True(),
+			token.False(),
+			token.End(),
+		},
+	},
 }
 
 func TestLexerTokens(t *testing.T) {

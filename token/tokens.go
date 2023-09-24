@@ -4,10 +4,11 @@ import "fmt"
 
 const (
 	LIST_START = iota
-	LIST_END   = iota
-	STRING     = iota
-	INT        = iota
-	STATEMENT  = iota
+	LIST_END
+	STRING
+	INT
+	STATEMENT
+	BOOL
 )
 
 type TokenType int
@@ -29,20 +30,22 @@ func (tt TokenType) String() string {
 		return "INT"
 	case STATEMENT:
 		return "STATEMENT"
+	case BOOL:
+		return "BOOL"
 	default:
 		return "INVALID"
 	}
 }
 
 func (t Token) String() string {
-	var str string
 	switch t.Type {
 	case LIST_START, LIST_END:
-		str = t.Type.String()
+		return t.Type.String()
+	case INT, BOOL:
+		return fmt.Sprintf("%s(%s)", t.Type, t.Text)
 	default:
-		str = fmt.Sprintf("%s(\"%s\")", t.Type, t.Text)
+		return fmt.Sprintf("%s(\"%s\")", t.Type, t.Text)
 	}
-	return str
 }
 
 func Compare(a, b Token) bool {
@@ -65,4 +68,12 @@ func Int(s string) Token {
 
 func Statement(s string) Token {
 	return Token{STATEMENT, s}
+}
+
+func True() Token {
+	return Token{BOOL, "true"}
+}
+
+func False() Token {
+	return Token{BOOL, "false"}
 }
