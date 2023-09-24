@@ -32,6 +32,8 @@ func evalStatement(l parser.List) parser.Item {
 	switch l.Items[0] {
 	case parser.Statement("add"):
 		return evalAdd(l)
+	case parser.Statement("if"):
+		return evalIf(l)
 	default:
 		err := fmt.Sprintf("unknown statement: '%#v'", l.Items[0])
 		panic(err)
@@ -49,4 +51,16 @@ func evalAdd(l parser.List) parser.Int {
 		sum += int(e)
 	}
 	return parser.Int(sum)
+}
+
+func evalIf(l parser.List) parser.Item {
+	pred, ok := l.Items[1].(parser.Bool)
+	if !ok {
+		panicMessage := fmt.Sprintf("if statement received non-boolean predicate %v", l.Items[0])
+		panic(panicMessage)
+	}
+	if pred {
+		return l.Items[2]
+	}
+	return l.Items[3]
 }

@@ -59,6 +59,19 @@ var parserTests = []struct {
 		output: parser.Int(3),
 		err:    nil,
 	},
+	{
+		input: parser.List{
+			T: parser.STATEMENT,
+			Items: []parser.Item{
+				parser.Statement("if"),
+				parser.True(),
+				parser.String("foo"),
+				parser.String("bar"),
+			},
+		},
+		output: parser.String("foo"),
+		err:    nil,
+	},
 }
 
 func TestEval(t *testing.T) {
