@@ -3,64 +3,60 @@ package interpreter
 import (
 	"fmt"
 
-	"github.com/monban/lispian/parser"
+	"github.com/monban/lispian/ast"
 )
 
-type ReturnType interface {
-	parser.Null | parser.List | parser.Int | parser.String
-}
-
-// Evaluate a List and return the result Item
-func Eval(l parser.List) parser.Item {
-	// Walk the list and evaluate any sub-lists
-	for i, item := range l.Items {
-		if item, ok := item.(parser.List); ok {
-			l.Items[i] = Eval(item)
+// Evaluate an Element and return the result
+func Eval(e ast.Element) ast.Element {
+	if l, ok := e.(ast.List); ok {
+		// Walk the list and evaluate any sub-lists
+		for i, item := range l {
+			if item, ok := item.(ast.List); ok {
+				l[i] = Eval(item)
+			}
 		}
-
-	}
-	if l.T == parser.LITERAL {
 		return l
 	}
-	if l.T == parser.STATEMENT {
-		return evalStatement(l)
+	if e, ok := e.(ast.Call); ok {
+		return evalCall(e)
 	}
-	return parser.Null{}
+	return e
 }
 
-func evalStatement(l parser.List) parser.Item {
-	switch l.Items[0] {
-	case parser.Statement("add"):
-		return evalAdd(l)
-	case parser.Statement("if"):
-		return evalIf(l)
+func evalCall(call ast.Call) ast.Element {
+	switch call.Name {
+	case "add":
+		return evalAdd(call.Parameters)
+	case "if":
+		return evalIf(call.Parameters)
 	default:
-		err := fmt.Sprintf("unknown statement: '%#v'", l.Items[0])
+		err := fmt.Sprintf("unknown statement: '%s'", call.Name)
 		panic(err)
 	}
 }
 
-func evalAdd(l parser.List) parser.Int {
+func evalAdd(l ast.List) ast.Int {
 	var sum int
-	for i := 1; i < len(l.Items); i++ {
-		// TODO: if this is a list, we should check if it evaluates to an Int
-		e, ok := l.Items[i].(parser.Int)
+	for _, e := range l {
+		e = Eval(e)
+		e, ok := e.(ast.Int)
 		if !ok {
 			panic("unable to parse int")
 		}
 		sum += int(e)
 	}
-	return parser.Int(sum)
+	return ast.Int(sum)
 }
 
-func evalIf(l parser.List) parser.Item {
-	pred, ok := l.Items[1].(parser.Bool)
+func evalIf(l ast.List) ast.Element {
+	p := Eval(l[0])
+	pred, ok := p.(ast.Bool)
 	if !ok {
-		panicMessage := fmt.Sprintf("if statement received non-boolean predicate %v", l.Items[0])
+		panicMessage := fmt.Sprintf("if statement received non-boolean predicate %v", l[0])
 		panic(panicMessage)
 	}
 	if pred {
-		return l.Items[2]
+		return Eval(l[1])
 	}
-	return l.Items[3]
+	return Eval(l[2])
 }

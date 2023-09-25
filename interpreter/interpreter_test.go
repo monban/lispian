@@ -4,93 +4,87 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/monban/lispian/parser"
+	"github.com/monban/lispian/ast"
 )
 
 var parserTests = []struct {
-	input  parser.List
-	output any
+	name   string
+	input  ast.Element
+	output ast.Element
 	err    error
 }{
-	// Literal lists just evaluate to themselves
 	{
-		input: parser.List{
-			T: parser.LITERAL,
-			Items: []parser.Item{
-				parser.String("Hello, world"),
-			},
+		name: "literal list",
+		input: ast.List{
+			ast.String("Hello, world"),
 		},
-		output: parser.List{
-			T: parser.LITERAL,
-			Items: []parser.Item{
-				parser.String("Hello, world"),
-			},
+		output: ast.List{
+			ast.String("Hello, world"),
 		},
 		err: nil,
 	},
 	{
-		input: parser.List{
-			T: parser.STATEMENT,
-			Items: []parser.Item{
-				parser.Statement("add"),
-				parser.Int(1),
-				parser.Int(2),
+		name: "add two numbers",
+		input: ast.Call{
+			Name: "add",
+			Parameters: ast.List{
+				ast.Int(1),
+				ast.Int(2),
 			},
 		},
-		output: parser.Int(3),
+		output: ast.Int(3),
 		err:    nil,
 	},
 	{
-		input: parser.List{
-			T: parser.STATEMENT,
-			Items: []parser.Item{
-				parser.Statement("add"),
-				parser.List{
-					T: parser.STATEMENT,
-					Items: []parser.Item{
-						parser.Statement("add"),
-						parser.Int(1),
-						parser.Int(1),
+		name: "nested add",
+		input: ast.Call{
+			Name: "add",
+			Parameters: ast.List{
+				ast.Call{
+					Name: "add",
+					Parameters: ast.List{
+						ast.Int(1),
+						ast.Int(1),
 					},
 				},
-				parser.Int(1),
+				ast.Int(1),
 			},
 		},
-		output: parser.Int(3),
+		output: ast.Int(3),
 		err:    nil,
 	},
 	{
-		input: parser.List{
-			T: parser.STATEMENT,
-			Items: []parser.Item{
-				parser.Statement("if"),
-				parser.True(),
-				parser.String("foo"),
-				parser.String("bar"),
+		name: "if",
+		input: ast.Call{
+			Name: "if",
+			Parameters: ast.List{
+				ast.True(),
+				ast.String("foo"),
+				ast.String("bar"),
 			},
 		},
-		output: parser.String("foo"),
+		output: ast.String("foo"),
 		err:    nil,
 	},
 }
 
 func TestEval(t *testing.T) {
 	for _, tst := range parserTests {
-		t.Run("", func(t *testing.T) {
+		t.Run(tst.name, func(t *testing.T) {
 			expected := tst.output
 			output := Eval(tst.input)
 			expectedType := reflect.TypeOf(tst.output)
 			receivedType := reflect.TypeOf(output)
 
 			if expectedType != receivedType {
-				t.Fatalf("%v != %v", expectedType, receivedType)
+				t.Fatalf("%v != %v", receivedType, expectedType)
 			}
 
 			var success bool
 			switch output := output.(type) {
-			case parser.List:
-				success = output.Equals(tst.input)
-			case parser.Item:
+			case ast.List:
+				success = ast.Equal(output, tst.input)
+			case ast.Element:
 				success = output == expected
 			default:
 				t.Fatalf("case not handled")

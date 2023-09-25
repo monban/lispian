@@ -3,65 +3,60 @@ package parser
 import (
 	"testing"
 
+	"github.com/monban/lispian/ast"
 	"github.com/monban/lispian/token"
 )
 
 var parserTests = []struct {
+	name   string
 	input  []token.Token
-	output List
+	output ast.Element
 	err    error
 }{
-	// An empty list
 	// ()
 	{
+		name: "an empty list",
 		input: []token.Token{
 			token.Start(),
 			token.End(),
 		},
-		output: List{
-			T:     EMPTY,
-			Items: []Item{},
-		},
-		err: nil,
+		output: ast.List{},
+		err:    nil,
 	},
 
-	// A literal list containing a single string
 	// ("Hello, world")
 	{
+		name: "literal list with single string",
 		input: []token.Token{
 			token.Start(),
 			token.String("Hello, world"),
 			token.End(),
 		},
-		output: List{
-			T:     LITERAL,
-			Items: []Item{String("Hello, world")},
-		},
-		err: nil,
+		output: ast.List{ast.String("Hello, world")},
+		err:    nil,
 	},
 
-	// A statement list with a string parameter
 	// (print "Hello, world")
 	{
+		name: "call with string prarmeter",
 		input: []token.Token{
 			token.Start(),
 			token.Statement("print"),
 			token.String("Hello, world"),
 			token.End(),
 		},
-		output: List{
-			T: STATEMENT,
-			Items: []Item{
-				Statement("print"),
-				String("Hello, world"),
+		output: ast.Call{
+			Name: "print",
+			Parameters: []ast.Element{
+				ast.String("Hello, world"),
 			},
 		},
 		err: nil,
 	},
 
-	// A statement list with two integer parameters
 	// (add 1 1)
 	{
+		name: "call with two integer parameters",
 		input: []token.Token{
 			token.Start(),
 			token.Statement("add"),
@@ -69,20 +64,19 @@ var parserTests = []struct {
 			token.Int("1"),
 			token.End(),
 		},
-		output: List{
-			T: STATEMENT,
-			Items: []Item{
-				Statement("add"),
-				Int(1),
-				Int(1),
+		output: ast.Call{
+			Name: "add",
+			Parameters: []ast.Element{
+				ast.Int(1),
+				ast.Int(1),
 			},
 		},
 		err: nil,
 	},
 
-	// A list with a sublist
 	// (add (add 1 1) 1)
 	{
+		name: "list with sublist",
 		input: []token.Token{
 			token.Start(),
 			token.Statement("add"),
@@ -94,27 +88,25 @@ var parserTests = []struct {
 			token.Int("1"),
 			token.End(),
 		},
-		output: List{
-			T: STATEMENT,
-			Items: []Item{
-				Statement("add"),
-				List{
-					T: STATEMENT,
-					Items: []Item{
-						Statement("add"),
-						Int(1),
-						Int(1),
+		output: ast.Call{
+			Name: "add",
+			Parameters: []ast.Element{
+				ast.Call{
+					Name: "add",
+					Parameters: []ast.Element{
+						ast.Int(1),
+						ast.Int(1),
 					},
 				},
-				Int(1),
+				ast.Int(1),
 			},
 		},
 		err: nil,
 	},
 
-	// An if statement
 	// (if true "foo" "bar")
 	{
+		name: "simple if statement",
 		input: []token.Token{
 			token.Start(),
 			token.Statement("if"),
@@ -123,13 +115,12 @@ var parserTests = []struct {
 			token.String("bar"),
 			token.End(),
 		},
-		output: List{
-			T: STATEMENT,
-			Items: []Item{
-				Statement("if"),
-				True(),
-				String("foo"),
-				String("bar"),
+		output: ast.Call{
+			Name: "if",
+			Parameters: []ast.Element{
+				ast.True(),
+				ast.String("foo"),
+				ast.String("bar"),
 			},
 		},
 		err: nil,
@@ -138,15 +129,15 @@ var parserTests = []struct {
 
 func TestParse(t *testing.T) {
 	for _, tst := range parserTests {
-		t.Run("", func(t *testing.T) {
+		t.Run(tst.name, func(t *testing.T) {
 			expected := tst.output
-			output, _, err := Parse(tst.input)
+			output, err := Parse(tst.input)
 			if err != tst.err {
 				t.Error(err)
 			}
 
-			if output.Equals(expected) {
-				t.Logf("%v != %v", output, tst.output)
+			if ast.Equal(output, expected) {
+				t.Logf("%v == %v", output, tst.output)
 			} else {
 				t.Errorf("%v != %v", output, tst.output)
 			}
