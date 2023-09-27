@@ -41,7 +41,8 @@ func TestAddition(t *testing.T) {
 			l.WriteString(input)
 			t.Logf("tokens: %v", l.Tokens())
 
-			program, err := parser.Parse(l.Tokens())
+			p := parser.Parser{}
+			program, err := p.Parse(l.Tokens())
 			if err != nil {
 				t.Fatal(err)
 			}

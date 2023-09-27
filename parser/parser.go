@@ -8,7 +8,11 @@ import (
 	"github.com/monban/lispian/token"
 )
 
-func Parse(ts []token.Token) (ast.Element, error) {
+type Parser struct {
+	program ast.List
+}
+
+func (p *Parser) Parse(ts []token.Token) (ast.Element, error) {
 	e := ts[0]
 	value := e.Text
 	switch e.Type {
@@ -20,7 +24,7 @@ func Parse(ts []token.Token) (ast.Element, error) {
 		integer, _ := strconv.ParseInt(value, 10, 32)
 		return ast.Int(integer), nil
 	case token.LIST_START:
-		sublist, _, _ := parseList(ts)
+		sublist, _, _ := p.parseList(ts)
 		return sublist, nil
 	case token.BOOL:
 		if e.Text == "true" {
@@ -35,7 +39,7 @@ func Parse(ts []token.Token) (ast.Element, error) {
 	}
 }
 
-func parseList(ts []token.Token) (ast.Element, int, error) {
+func (p *Parser) parseList(ts []token.Token) (ast.Element, int, error) {
 	i := 1
 	if ts[i].Type == token.STATEMENT {
 		// This is a function call
@@ -47,7 +51,7 @@ func parseList(ts []token.Token) (ast.Element, int, error) {
 			if ts[i].Type == token.LIST_END {
 				return call, i + 1, nil
 			}
-			e, _ := Parse(ts[i:])
+			e, _ := p.Parse(ts[i:])
 			call.Parameters = append(call.Parameters, e)
 		}
 		return call, i, nil
@@ -58,7 +62,7 @@ func parseList(ts []token.Token) (ast.Element, int, error) {
 		if ts[i].Type == token.LIST_END {
 			break
 		}
-		element, _ := Parse(ts[i:])
+		element, _ := p.Parse(ts[i:])
 		l = append(l, element)
 	}
 	return l, i, nil

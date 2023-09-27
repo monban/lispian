@@ -130,8 +130,9 @@ var parserTests = []struct {
 func TestParse(t *testing.T) {
 	for _, tst := range parserTests {
 		t.Run(tst.name, func(t *testing.T) {
+			p := Parser{}
 			expected := tst.output
-			output, err := Parse(tst.input)
+			output, err := p.Parse(tst.input)
 			if err != tst.err {
 				t.Error(err)
 			}
