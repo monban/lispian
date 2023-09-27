@@ -21,17 +21,24 @@ func main() {
 		if input == "quit" {
 			break
 		}
-		err := l.WriteString(scanner.Text())
+		if input[0] != '(' {
+			input = "(" + input
+		}
+		if input[len(input)-1] != ')' {
+			input = input + ")"
+		}
+		fmt.Printf("DEBUG: input: %s\n", input)
+		err := l.WriteString(input)
 		if err != nil {
 			panic(err)
 		}
-		// fmt.Printf("DEBUG: tokens: %#v\n", l.Tokens())
+		fmt.Printf("DEBUG: tokens: %#v\n", l.Tokens())
 
-		program, _, err := parser.Parse(l.Tokens())
+		program, err := parser.Parse(l.Tokens())
 		if err != nil {
 			panic(err)
 		}
-		// fmt.Printf("DEBUG: program: %#v\n", l)
+		fmt.Printf("DEBUG: program: %#v\n", l)
 
 		output := interpreter.Eval(program)
 		fmt.Printf("%v\n", output)
