@@ -41,12 +41,6 @@ func NewVoid() Void {
 	return Void(0)
 }
 
-type List []Element
-
-func (l List) Type() Type {
-	return LIST
-}
-
 type Int int
 
 func (i Int) Type() Type {
@@ -114,7 +108,7 @@ func Equal(a, b Element) bool {
 		if a.Name != b.Name {
 			return false
 		}
-		return slices.EqualFunc(a.Parameters, b.Parameters, Equal)
+		return Equal(a.Parameters, b.Parameters)
 	}
 
 	// compare generic

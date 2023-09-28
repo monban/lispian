@@ -66,3 +66,17 @@ func TestEqual(t *testing.T) {
 	}
 
 }
+
+func TestAddingToList(t *testing.T) {
+	expectedLength := 4
+	l := List{}
+	l.AddElement(Int(5))
+	l.AddElement(String("Hello, world"))
+	l.AddElement(True())
+	l.AddElement(List{True()})
+	if len(l) == expectedLength {
+		t.Log("list was expected length")
+	} else {
+		t.Errorf("list was %d length but expected %d", len(l), expectedLength)
+	}
+}
