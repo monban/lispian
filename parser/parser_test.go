@@ -146,3 +146,23 @@ func TestParse(t *testing.T) {
 	}
 
 }
+
+func TestParseList(t *testing.T) {
+	for _, test := range parserTests {
+		t.Run(test.name, func(t *testing.T) {
+			p := Parser{}
+			expected := test.output
+			output, _, err := p.parseList(test.input)
+			if err != test.err {
+				t.Error(err)
+			}
+
+			if ast.Equal(output, expected) {
+				t.Logf("%v == %v", output, test.output)
+			} else {
+				t.Errorf("%v != %v", output, test.output)
+			}
+		})
+	}
+
+}
