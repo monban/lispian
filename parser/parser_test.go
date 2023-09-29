@@ -152,9 +152,14 @@ func TestParseList(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			p := Parser{}
 			expected := test.output
-			output, _, err := p.parseList(test.input)
+			output, i, err := p.parseList(test.input)
 			if err != test.err {
 				t.Error(err)
+			}
+			if len(test.input) == i {
+				t.Logf("parser received and processed %d tokens", i)
+			} else {
+				t.Logf("parser received %d tokens but reports it processed %d", len(test.input), i)
 			}
 
 			if ast.Equal(output, expected) {
@@ -164,5 +169,16 @@ func TestParseList(t *testing.T) {
 			}
 		})
 	}
+
+}
+
+func TestParseElement(t *testing.T) {
+	p := Parser{}
+	b := []token.Token{
+		token.Start(),
+		token.String("hello, world"),
+		token.End(),
+	}
+	t.Log(p.parseElement(b))
 
 }
