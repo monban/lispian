@@ -25,7 +25,6 @@ func (p *Parser) parseList(ts []token.Token) (ast.Element, int, error) {
 		return ast.NewVoid(), 0, fmt.Errorf("parseList received tokenstream not starting with '('")
 	}
 	i++
-	fmt.Println("parsing list: ", ts)
 	var out ast.Element
 	if ts[i].Type == token.STATEMENT {
 		// This is a function call
@@ -39,7 +38,6 @@ func (p *Parser) parseList(ts []token.Token) (ast.Element, int, error) {
 		out = l
 		i += j
 	}
-	fmt.Println("returning list: ", out)
 	return out, i, nil
 }
 

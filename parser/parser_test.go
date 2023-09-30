@@ -14,7 +14,7 @@ type ParserTest = struct {
 	err    error
 }
 
-var parserTests = []ParserTest{
+var literalListTests = []ParserTest{
 	// ()
 	{
 		name: "an empty list",
@@ -37,96 +37,6 @@ var parserTests = []ParserTest{
 		output: ast.List{ast.String("Hello, world")},
 		err:    nil,
 	},
-
-	// (print "Hello, world")
-	{
-		name: "call with string prarmeter",
-		input: []token.Token{
-			token.Start(),
-			token.Statement("print"),
-			token.String("Hello, world"),
-			token.End(),
-		},
-		output: ast.Call{
-			Name: "print",
-			Parameters: []ast.Element{
-				ast.String("Hello, world"),
-			},
-		},
-		err: nil,
-	},
-
-	// (add 1 2)
-	{
-		name: "call with two integer parameters",
-		input: []token.Token{
-			token.Start(),
-			token.Statement("add"),
-			token.Int("1"),
-			token.Int("2"),
-			token.End(),
-		},
-		output: ast.Call{
-			Name: "add",
-			Parameters: []ast.Element{
-				ast.Int(1),
-				ast.Int(2),
-			},
-		},
-		err: nil,
-	},
-
-	// // (add (add 1 1) 1)
-	// {
-	// 	name: "list with sublist",
-	// 	input: []token.Token{
-	// 		token.Start(),
-	// 		token.Statement("add"),
-	// 		token.Start(),
-	// 		token.Statement("add"),
-	// 		token.Int("1"),
-	// 		token.Int("1"),
-	// 		token.End(),
-	// 		token.Int("1"),
-	// 		token.End(),
-	// 	},
-	// 	output: ast.Call{
-	// 		Name: "add",
-	// 		Parameters: []ast.Element{
-	// 			ast.Call{
-	// 				Name: "add",
-	// 				Parameters: []ast.Element{
-	// 					ast.Int(1),
-	// 					ast.Int(1),
-	// 				},
-	// 			},
-	// 			ast.Int(1),
-	// 		},
-	// 	},
-	// 	err: nil,
-	// },
-
-	// // (if true "foo" "bar")
-	// {
-	// 	name: "simple if statement",
-	// 	input: []token.Token{
-	// 		token.Start(),
-	// 		token.Statement("if"),
-	// 		token.True(),
-	// 		token.String("foo"),
-	// 		token.String("bar"),
-	// 		token.End(),
-	// 	},
-	// 	output: ast.Call{
-	// 		Name: "if",
-	// 		Parameters: []ast.Element{
-	// 			ast.True(),
-	// 			ast.String("foo"),
-	// 			ast.String("bar"),
-	// 		},
-	// 	},
-	// 	err: nil,
-	// },
 }
 
 var functionCallTests = []ParserTest{
@@ -167,23 +77,75 @@ var functionCallTests = []ParserTest{
 		},
 		err: nil,
 	},
+	// (add (add 1 1) 1)
+	{
+		name: "list with sublist",
+		input: []token.Token{
+			token.Start(),
+			token.Statement("add"),
+			token.Start(),
+			token.Statement("add"),
+			token.Int("1"),
+			token.Int("1"),
+			token.End(),
+			token.Int("1"),
+			token.End(),
+		},
+		output: ast.Call{
+			Name: "add",
+			Parameters: []ast.Element{
+				ast.Call{
+					Name: "add",
+					Parameters: []ast.Element{
+						ast.Int(1),
+						ast.Int(1),
+					},
+				},
+				ast.Int(1),
+			},
+		},
+		err: nil,
+	},
+
+	// (if true "foo" "bar")
+	{
+		name: "simple if statement",
+		input: []token.Token{
+			token.Start(),
+			token.Statement("if"),
+			token.True(),
+			token.String("foo"),
+			token.String("bar"),
+			token.End(),
+		},
+		output: ast.Call{
+			Name: "if",
+			Parameters: []ast.Element{
+				ast.True(),
+				ast.String("foo"),
+				ast.String("bar"),
+			},
+		},
+		err: nil,
+	},
 }
 
 func TestParse(t *testing.T) {
 	t.SkipNow()
-	for _, tst := range parserTests {
-		t.Run(tst.name, func(t *testing.T) {
+	tests := append(literalListTests, functionCallTests...)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
 			p := Parser{}
-			expected := tst.output
-			output, err := p.Parse(tst.input)
-			if err != tst.err {
+			expected := test.output
+			output, err := p.Parse(test.input)
+			if err != test.err {
 				t.Error(err)
 			}
 
 			if ast.Equal(output, expected) {
-				t.Logf("%v == %v", output, tst.output)
+				t.Logf("%v == %v", output, test.output)
 			} else {
-				t.Errorf("%v != %v", output, tst.output)
+				t.Errorf("%v != %v", output, test.output)
 			}
 		})
 	}
@@ -191,7 +153,8 @@ func TestParse(t *testing.T) {
 }
 
 func TestParseList(t *testing.T) {
-	for _, test := range parserTests {
+	tests := append(literalListTests, functionCallTests...)
+	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			p := Parser{}
 			expected := test.output
@@ -216,7 +179,6 @@ func TestParseList(t *testing.T) {
 }
 
 func TestParseElement(t *testing.T) {
-	t.SkipNow()
 	p := Parser{}
 	b := []token.Token{
 		token.Start(),
@@ -228,7 +190,6 @@ func TestParseElement(t *testing.T) {
 }
 
 func TestParseCall(t *testing.T) {
-	t.SkipNow()
 	for _, test := range functionCallTests {
 		t.Run(test.name, func(t *testing.T) {
 			p := Parser{}
