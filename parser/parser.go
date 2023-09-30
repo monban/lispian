@@ -22,7 +22,7 @@ func (p *Parser) Parse(ts []token.Token) (ast.Element, error) {
 func (p *Parser) parseList(ts []token.Token) (ast.Element, int, error) {
 	i := 0
 	if ts[i].Type != token.LIST_START {
-		return ast.NewVoid(), 0, fmt.Errorf("parseList received tokenstream not starting with '()'")
+		return ast.NewVoid(), 0, fmt.Errorf("parseList received tokenstream not starting with '('")
 	}
 	i++
 	fmt.Println("parsing sublist: ", ts)
