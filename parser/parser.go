@@ -25,40 +25,54 @@ func (p *Parser) parseList(ts []token.Token) (ast.Element, int, error) {
 		return ast.NewVoid(), 0, fmt.Errorf("parseList received tokenstream not starting with '('")
 	}
 	i++
-	fmt.Println("parsing sublist: ", ts)
+	fmt.Println("parsing list: ", ts)
 	var out ast.Element
 	if ts[i].Type == token.STATEMENT {
 		// This is a function call
-		call := ast.Call{
-			Name: ast.Identifier(ts[i].Text),
-		}
-		i++
-		for ; i < len(ts); i++ {
-			if ts[i].Type == token.LIST_END {
-				i++
-				break
-			}
-			e, _, _ := p.parseElement(ts[i:])
-			call.Parameters.AddElement(e)
-		}
-		fmt.Println(call)
-		out = call
-	} else {
-		i++
-		l := ast.List{}
-		for ; i < len(ts); i++ {
-			if ts[i].Type == token.LIST_END {
-				i++
-				break
-			}
-			element, j, _ := p.parseElement(ts[i:])
-			i += j
-			l.AddElement(element)
-		}
+		i--
+		l, j, _ := p.parseCall(ts[i:])
 		out = l
+		i += j
+	} else {
+		l, j, _ := p.parseLiteralList(ts[i:])
+		out = l
+		i += j
 	}
-	fmt.Println("returning sublist: ", out)
+	fmt.Println("returning list: ", out)
 	return out, i, nil
+}
+
+func (p *Parser) parseCall(ts []token.Token) (ast.Call, int, error) {
+	i := 1
+	call := ast.Call{
+		Name: ast.Identifier(ts[i].Text),
+	}
+	i++
+	for i < len(ts) {
+		if ts[i].Type == token.LIST_END {
+			i++
+			break
+		}
+		e, j, _ := p.parseElement(ts[i:])
+		i += j
+		call.Parameters.AddElement(e)
+	}
+	return call, i, nil
+}
+
+func (p *Parser) parseLiteralList(ts []token.Token) (ast.List, int, error) {
+	i := 1
+	l := ast.List{}
+	for i < len(ts) {
+		if ts[i].Type == token.LIST_END {
+			i++
+			break
+		}
+		e, j, _ := p.parseElement(ts[i:])
+		i += j
+		l.AddElement(e)
+	}
+	return l, i, nil
 }
 
 // Parse the tokenstream until able to output a single element
