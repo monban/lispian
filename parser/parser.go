@@ -34,6 +34,7 @@ func (p *Parser) parseList(ts []token.Token) (ast.Element, int, error) {
 		out = l
 		i += j
 	} else {
+		i--
 		l, j, _ := p.parseLiteralList(ts[i:])
 		out = l
 		i += j
