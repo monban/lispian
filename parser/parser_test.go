@@ -135,9 +135,8 @@ func TestParse(t *testing.T) {
 	tests := append(literalListTests, functionCallTests...)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			p := Parser{}
 			expected := test.output
-			output, err := p.Parse(test.input)
+			output, err := Parse(test.input)
 			if err != test.err {
 				t.Error(err)
 			}
@@ -156,9 +155,8 @@ func TestParseList(t *testing.T) {
 	tests := append(literalListTests, functionCallTests...)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			p := Parser{}
 			expected := test.output
-			output, i, err := p.parseList(test.input)
+			output, i, err := parseList(test.input)
 			if err != test.err {
 				t.Error(err)
 			}
@@ -179,22 +177,20 @@ func TestParseList(t *testing.T) {
 }
 
 func TestParseElement(t *testing.T) {
-	p := Parser{}
 	b := []token.Token{
 		token.Start(),
 		token.String("hello, world"),
 		token.End(),
 	}
-	t.Log(p.parseElement(b))
+	t.Log(parseElement(b))
 
 }
 
 func TestParseCall(t *testing.T) {
 	for _, test := range functionCallTests {
 		t.Run(test.name, func(t *testing.T) {
-			p := Parser{}
 			expected := test.output
-			output, i, err := p.parseCall(test.input)
+			output, i, err := parseCall(test.input)
 			if err != test.err {
 				t.Error(err)
 			}
