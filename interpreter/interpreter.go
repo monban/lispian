@@ -11,14 +11,15 @@ func Eval(e ast.Element) ast.Element {
 	if l, ok := e.(ast.List); ok {
 		// Walk the list and evaluate any sub-lists
 		for i, item := range l {
-			if item, ok := item.(ast.List); ok {
-				l[i] = Eval(item)
-			}
+			l[i] = Eval(item)
+		}
+		if len(l) == 1 {
+			return l[0]
 		}
 		return l
 	}
 	if e, ok := e.(ast.Call); ok {
-		return evalCall(e)
+		return Eval(evalCall(e))
 	}
 	return e
 }

@@ -31,7 +31,7 @@ var tests = []struct {
 	},
 }
 
-func TestAddition(t *testing.T) {
+func TestList(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			input := test.input
@@ -56,4 +56,28 @@ func TestAddition(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestAddition(t *testing.T) {
+	input := "(add 1 2)"
+	expected := ast.Int(3)
+
+	l := lexer.Lexer{}
+	l.WriteString(input)
+	t.Logf("tokens: %v", l.Tokens())
+
+	program, err := parser.Parse(l.Tokens())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Logf("AST: %v", program)
+	output := interpreter.Eval(program)
+
+	if output == expected {
+		t.Logf("%v == %v", output, expected)
+	} else {
+		t.Errorf("%v != %v", output, expected)
+	}
+
 }

@@ -9,10 +9,17 @@ import (
 )
 
 func Parse(ts []token.Token) (ast.Element, error) {
-	for i := 0; i < len(ts); i++ {
+	outputs := ast.List{}
+	for i := 0; i < len(ts); {
+		output, j, err := parseElement(ts[i:])
+		if err != nil {
+			return ast.NewVoid(), err
+		}
+		i += j
+		outputs.AddElement(output)
 
 	}
-	return ast.NewVoid(), nil
+	return outputs, nil
 }
 
 func parseList(ts []token.Token) (ast.Element, int, error) {
