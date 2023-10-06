@@ -18,10 +18,8 @@ var parserTests = []struct {
 		input: ast.List{
 			ast.String("Hello, world"),
 		},
-		output: ast.List{
-			ast.String("Hello, world"),
-		},
-		err: nil,
+		output: ast.String("Hello, world"),
+		err:    nil,
 	},
 	{
 		name: "add two numbers",
