@@ -23,25 +23,19 @@ func Parse(ts []token.Token) (ast.Element, error) {
 }
 
 func parseList(ts []token.Token) (ast.Element, int, error) {
-	i := 0
-	if ts[i].Type != token.LIST_START {
+	if ts[0].Type != token.LIST_START {
 		return ast.NewVoid(), 0, fmt.Errorf("parseList received tokenstream not starting with '('")
 	}
-	i++
 	var out ast.Element
-	if ts[i].Type == token.STATEMENT {
+	var i int
+	var err error
+	if ts[1].Type == token.STATEMENT {
 		// This is a function call
-		i--
-		l, j, _ := parseCall(ts[i:])
-		out = l
-		i += j
+		out, i, err = parseCall(ts)
 	} else {
-		i--
-		l, j, _ := parseLiteralList(ts[i:])
-		out = l
-		i += j
+		out, i, err = parseLiteralList(ts)
 	}
-	return out, i, nil
+	return out, i, err
 }
 
 func parseCall(ts []token.Token) (ast.Call, int, error) {
