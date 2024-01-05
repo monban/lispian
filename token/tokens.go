@@ -9,6 +9,7 @@ const (
 	INT
 	STATEMENT
 	BOOL
+	EOF
 )
 
 type TokenType int
@@ -32,6 +33,8 @@ func (tt TokenType) String() string {
 		return "STATEMENT"
 	case BOOL:
 		return "BOOL"
+	case EOF:
+		return "EOF"
 	default:
 		return "INVALID"
 	}
@@ -76,4 +79,33 @@ func True() Token {
 
 func False() Token {
 	return Token{BOOL, "false"}
+}
+
+func Eof() Token {
+	return Token{EOF, ""}
+}
+
+type List struct {
+	Tokens   []Token
+	Position int
+}
+
+func NewList(tokens []Token) *List {
+	return &List{
+		Tokens:   tokens,
+		Position: 0,
+	}
+}
+
+func (tl *List) ReadToken() Token {
+	if tl.Position >= tl.Length() {
+		return Eof()
+	}
+	t := tl.Tokens[tl.Position]
+	tl.Position++
+	return t
+}
+
+func (tl *List) Length() int {
+	return len(tl.Tokens)
 }
