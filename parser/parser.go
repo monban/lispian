@@ -38,6 +38,23 @@ func parseList(ts []token.Token) (ast.Element, int, error) {
 	return out, i, err
 }
 
+func parseLists(tl *token.List) ast.List {
+	var l ast.List
+
+	for e := tl.ReadToken(); e.Type != token.EOF; e = tl.ReadToken() {
+		switch e.Type {
+		case token.LIST_START:
+			l.AddElement(parseLists(tl))
+		case token.LIST_END:
+			return l
+		default:
+			l.AddElement(ast.Identifier(e.String()))
+		}
+	}
+
+	return l
+}
+
 func parseCall(ts []token.Token) (ast.Call, int, error) {
 	i := 1
 	call := ast.Call{

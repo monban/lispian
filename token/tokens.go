@@ -109,3 +109,16 @@ func (tl *List) ReadToken() Token {
 func (tl *List) Length() int {
 	return len(tl.Tokens)
 }
+
+func (tl *List) Reset() {
+	tl.Position = 0
+	clear(tl.Tokens)
+}
+
+func (tl *List) Append(t Token) {
+	tl.Tokens = append(tl.Tokens, t)
+}
+
+func (tl *List) String() string {
+	return fmt.Sprintf("%s", tl.Tokens)
+}

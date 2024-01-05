@@ -34,14 +34,14 @@ func (s State) String() string {
 }
 
 type Lexer struct {
-	tokens      []token.Token
+	tokens      token.List
 	state       State
 	partial     strings.Builder
 	partialRune []byte
 }
 
 func (l *Lexer) Reset() {
-	l.tokens = l.tokens[:0]
+	l.tokens.Reset()
 	l.partial.Reset()
 }
 
@@ -84,13 +84,13 @@ func (l *Lexer) WriteByte(b byte) error {
 	return nil
 }
 
-func (l *Lexer) Tokens() []token.Token {
+func (l *Lexer) Tokens() token.List {
 	return l.tokens
 }
 
 func (l *Lexer) readstring(r rune) {
 	if r == '"' {
-		l.tokens = append(l.tokens, token.String(l.partial.String()))
+		l.tokens.Append(token.String(l.partial.String()))
 		l.partial.Reset()
 		l.state = ROOT
 	} else {
@@ -100,7 +100,7 @@ func (l *Lexer) readstring(r rune) {
 
 func (l *Lexer) readnumber(r rune) {
 	if r < '0' || r > '9' {
-		l.tokens = append(l.tokens, token.Int(l.partial.String()))
+		l.tokens.Append(token.Int(l.partial.String()))
 		l.partial.Reset()
 		l.state = ROOT
 		l.readroot(r)
@@ -118,11 +118,11 @@ func (l *Lexer) readstmt(r rune) {
 	// The previous statement is complete
 	str := l.partial.String()
 	if str == "true" {
-		l.tokens = append(l.tokens, token.True())
+		l.tokens.Append(token.True())
 	} else if str == "false" {
-		l.tokens = append(l.tokens, token.False())
+		l.tokens.Append(token.False())
 	} else {
-		l.tokens = append(l.tokens, token.Statement(str))
+		l.tokens.Append(token.Statement(str))
 	}
 	l.state = ROOT
 	l.partial.Reset()
@@ -134,9 +134,9 @@ func (l *Lexer) readroot(r rune) {
 	case '"':
 		l.state = READSTRING
 	case '(':
-		l.tokens = append(l.tokens, token.Start())
+		l.tokens.Append(token.Start())
 	case ')':
-		l.tokens = append(l.tokens, token.End())
+		l.tokens.Append(token.End())
 	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 		l.state = READNUMBER
 		l.readnumber(r)

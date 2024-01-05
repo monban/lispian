@@ -41,7 +41,7 @@ func TestList(t *testing.T) {
 			l.WriteString(input)
 			t.Logf("tokens: %v", l.Tokens())
 
-			program, err := parser.Parse(l.Tokens())
+			program, err := parser.Parse(l.Tokens().Tokens)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -66,7 +66,7 @@ func TestAddition(t *testing.T) {
 	l.WriteString(input)
 	t.Logf("tokens: %v", l.Tokens())
 
-	program, err := parser.Parse(l.Tokens())
+	program, err := parser.Parse(l.Tokens().Tokens)
 	if err != nil {
 		t.Fatal(err)
 	}
