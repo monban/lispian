@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/monban/lispian/ast"
@@ -224,4 +225,21 @@ func TestParseCall(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestParseLists(t *testing.T) {
+	l := token.NewList([]token.Token{
+		token.Start(),
+		token.String("hello, world"),
+		token.Start(),
+		token.Statement("+"),
+		token.Int("42"),
+		token.Int("42"),
+		token.End(),
+		token.String("bye, world"),
+		token.End(),
+	})
+	expected := ast.List{[]ast.Element{}}
+	result := parseLists(l)
+	slices.CompareFunc(result, expected)
 }
