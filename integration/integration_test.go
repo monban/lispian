@@ -37,6 +37,8 @@ func TestList(t *testing.T) {
 			input := test.input
 			expected := test.expected
 
+			t.Logf("string: %s", input)
+
 			l := lexer.Lexer{}
 			l.WriteString(input)
 			t.Logf("tokens: %v", l.Tokens())

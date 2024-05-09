@@ -130,9 +130,25 @@ var functionCallTests = []ParserTest{
 	},
 }
 
+var invalidListTests = []ParserTest{
+	{
+		name: "add with unbalanced parameters",
+		input: []token.Token{
+			token.Start(),
+			token.Statement("if"),
+			token.True(),
+			token.String("foo"),
+			token.String("bar"),
+		},
+		output: ast.NewVoid(),
+		err:    UnbalancedParams{},
+	},
+}
+
 func TestParse(t *testing.T) {
 	t.SkipNow()
 	tests := append(literalListTests, functionCallTests...)
+	tests = append(tests, invalidListTests...)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			expected := test.output
@@ -153,6 +169,7 @@ func TestParse(t *testing.T) {
 
 func TestParseList(t *testing.T) {
 	tests := append(literalListTests, functionCallTests...)
+	tests = append(tests, invalidListTests...)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			expected := test.output
